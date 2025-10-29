@@ -4,16 +4,21 @@ import './Navbar.css';
 
 function Navbar(){
     return(
-        <nav style={{padding: '1rem', backgroundColor: '#eee', marginBottom: '1rem'}}>
-             <Link to="/" style={{marginRight: '1rem'}}>
-             Linkveo (home)
-             </Link>
-
-             <Link to="/login">
-             Iniciar sesión
-             </Link>
-             
-        </nav>
+    <nav className="navbar">
+     <div>
+      <Link to="/" className="navbar-brand">
+        Linkveo
+      </Link>
+     </div>
+     <div className="navbar-links">
+      <Link to="/login">
+        Iniciar Sesión
+      </Link>
+      <Link to="/register">
+        Registrarse
+      </Link>
+     </div>
+    </nav>
     )
 }
 
