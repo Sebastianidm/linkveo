@@ -1,57 +1,52 @@
-// src/services/authService.js
-//import axios from 'axios';
+import axios from 'axios';
 
-// En un futuro, esta sería la URL real de tu backend
-// const API_URL = 'http://localhost:8000/api/auth'; 
+// URL de tu microservicio de USUARIOS (Puerto 8000)
+const API_URL = 'http://localhost:8000'; 
 
-// --- SIMULACIÓN ---
-// Vamos a simular que la API tarda 1 segundo en responder
-
-// Simulación de la función de Login
 export const apiLogin = async (email, password) => {
-  console.log("Llamando a la API (simulada) para login...", { email, password });
-  
-  // Simulamos una espera de 1 segundo
-  await new Promise(resolve => setTimeout(resolve, 1000)); 
+  try {
+    // 1. FastAPI espera los datos como form-data para OAuth2
+    const formData = new URLSearchParams();
+    formData.append('username', email); // FastAPI usa 'username' internamente
+    formData.append('password', password);
 
-  // Simulamos una respuesta exitosa del backend
-  if (email === "test@test.com") {
-    // Si el login es exitoso, devolvemos un token y datos de usuario (simulados)
+    // 2. Pedimos el token
+    const response = await axios.post(`${API_URL}/auth/token`, formData, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+
+    const token = response.data.access_token;
+
+    // 3. Con el token, pedimos los datos del usuario
+    const userResponse = await axios.get(`${API_URL}/users/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    // 4. Devolvemos el formato que espera nuestro AuthProvider
     return {
-      token: "jwt-token-simulado-123456",
-      user: {
-        id: 1,
-        email: "test@test.com",
-        name: "Usuario de Prueba"
-      }
+      token: token,
+      user: userResponse.data 
     };
-  } else {
-    // Si el login falla (ej. mal email), lanzamos un error
-    throw new Error("Credenciales inválidas (simulado)");
+
+  } catch (error) {
+    // Si falla, lanzamos un error legible
+    throw new Error(error.response?.data?.detail || "Error al iniciar sesión");
   }
 };
 
-// Simulación de la función de Registro
 export const apiRegister = async (email, password) => {
-  console.log("Llamando a la API (simulada) para registro...", { email, password });
-  
-  // Simulamos una espera de 1 segundo
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Simulamos una respuesta exitosa
-  return {
-    message: "Usuario registrado exitosamente"
-  };
-};
+  try {
+    // Generamos un username simple basado en el email
+    const username = email.split('@')[0] + Math.floor(Math.random() * 1000); 
 
-// --- CÓDIGO REAL (para el futuro) ---
-// Así se vería una llamada real con axios
-/*
-export const apiLogin = async (email, password) => {
-  const response = await axios.post(`${API_URL}/login`, {
-    email,
-    password
-  });
-  return response.data; // { token, user }
+    const response = await axios.post(`${API_URL}/auth/register`, {
+      email: email,
+      username: username, 
+      password: password
+    });
+    
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.detail || "Error al registrarse");
+  }
 };
-*/
