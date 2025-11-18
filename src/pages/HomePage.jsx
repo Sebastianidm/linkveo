@@ -115,35 +115,39 @@ export default function HomePage() {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {links.map((link) => (
             <a 
-              key={link.id} 
-              href={link.url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="group relative block bg-white rounded-3xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] border border-gray-100 transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="flex items-center justify-between mb-4">
-                {/* Icono decorativo (placeholder) */}
-                <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
-                  </svg>
+            key={link.id} 
+            href={link.url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="group relative flex flex-col bg-white rounded-3xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] border border-gray-100 transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+          >
+            {/* 1. IMAGEN DE PORTADA */}
+            <div className="h-40 w-full bg-gray-100 relative overflow-hidden">
+              {link.image ? (
+                <img 
+                  src={link.image} 
+                  alt={link.title} 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  onError={(e) => {e.target.style.display = 'none'}} // Si falla la imagen, la ocultamos
+                />
+              ) : (
+                // Placeholder si no hay imagen (Un patrón o color)
+                <div className="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
+                  <span className="text-4xl">🔗</span>
                 </div>
-                
-                {/* Flechita de "ir" */}
-                <div className="text-gray-300 group-hover:text-blue-500 transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
-                  </svg>
-                </div>
-              </div>
-              
-              <h3 className="text-lg font-bold text-gray-900 truncate mb-1">
+              )}
+            </div>
+          
+            {/* 2. CONTENIDO DE TEXTO */}
+            <div className="p-5 flex flex-col flex-grow">
+              <h3 className="text-lg font-bold text-gray-900 line-clamp-2 mb-2 group-hover:text-[#0071e3] transition-colors">
                 {link.title}
               </h3>
-              <p className="text-sm text-gray-400 truncate font-medium">
+              <p className="text-xs text-gray-400 font-medium truncate mt-auto">
                 {link.url}
               </p>
-            </a>
+            </div>
+          </a>
           ))}
         </div>
 

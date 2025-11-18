@@ -1,30 +1,45 @@
-// src/context/AuthProvider.jsx
 import React, { useState } from 'react';
 import { AuthContext } from './AuthContext.js';
-// 1. IMPORTA apiRegister TAMBIÉN
-import { apiLogin, apiRegister } from '../services/authService.js'; 
+import { apiLogin, apiRegister } from '../services/authService.js';
+
+// 1. Función auxiliar para recuperar el usuario guardado
+const getInitialUser = () => {
+  const savedUser = localStorage.getItem('user');
+  try {
+    return savedUser ? JSON.parse(savedUser) : null;
+  } catch {
+    return null;
+  }
+};
 
 const getInitialToken = () => {
   return localStorage.getItem('token');
-}
+};
 
 function AuthProvider({ children }) {
     const [token, setToken] = useState(getInitialToken()); 
     const [isAuth, setIsAuth] = useState(!!token); 
-    const [user, setUser] = useState(null);
+    
+    // 2. Inicializamos el estado con lo que haya en localStorage
+    const [user, setUser] = useState(getInitialUser()); 
+    
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const login = async (email, password) => {
-      // ... (esta función no cambia)
       setLoading(true);
       setError(null);
       try {
         const data = await apiLogin(email, password);
+        
         setUser(data.user);
         setToken(data.token);
         setIsAuth(true);
+
+        // 3. Guardamos AMBOS en localStorage
         localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user)); // Guardamos el objeto como texto
+
       } catch (err) {
         setError(err.message);
         setIsAuth(false);
@@ -33,24 +48,15 @@ function AuthProvider({ children }) {
       }
     };
 
-    // 2. AÑADE LA NUEVA FUNCIÓN REGISTER
     const register = async (email, password) => {
       setLoading(true);
       setError(null);
       try {
-        // Llamamos a la API simulada de registro
-        await apiRegister(email, password); // Ya no asignamos 'data'
-        
-        // El registro fue exitoso, podríamos guardar el mensaje si quisiéramos
-        // Opcional: podemos limpiar el error por si había uno anterior
+        await apiRegister(email, password);
         setError(null);
-        
-        // Devolvemos 'true' para indicar éxito
         return true; 
       } catch (err) {
-        // Si la API simulada da error
         setError(err.message);
-        // Devolvemos 'false' para indicar fracaso
         return false;
       } finally {
         setLoading(false);
@@ -58,15 +64,16 @@ function AuthProvider({ children }) {
     };
 
     const logout = () => {
-      // ... (esta función no cambia)
-      console.log("Cierre de sesion exitoso");
-      setUser(null);
-      setToken(null);
-      setIsAuth(false);
-      localStorage.removeItem('token');
+        console.log("Cerrando sesión...");
+        setUser(null);
+        setToken(null);
+        setIsAuth(false);
+        
+        // 4. Limpiamos AMBOS del localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
     }
 
-    // 3. AÑADE 'register' AL VALOR
     const value = {
         isAuth,
         user,
@@ -74,7 +81,7 @@ function AuthProvider({ children }) {
         loading,
         error,
         login,
-        register, // <-- Añadir aquí
+        register,
         logout
     };
 
